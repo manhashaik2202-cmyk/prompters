@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CrisisConnect AI - Emergency Response Coordination Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- =========================================================================
+       1. LOGIN SCREEN (Demo Authentication)
+       ========================================================================= -->
+  <section id="login-screen" class="login-wrapper" aria-label="Demo Login Screen">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="brand-badge">
+          <span class="brand-icon">⚡</span>
+          <span class="badge-text">CrisisConnect AI</span>
+        </div>
+        <h1>Emergency Coordination Portal</h1>
+        <p class="subtitle">AI-assisted disaster response, multi-source intelligence, and tactical resource management.</p>
+        <div class="demo-notice">
+          <span>⚠️ <strong>Prototype Demo:</strong> Select any responder profile or use sample credentials to access the emergency dashboard.</span>
+        </div>
+      </div>
+
+      <form id="login-form" class="login-form" onsubmit="event.preventDefault(); handleLogin();">
+        <div class="form-group">
+          <label for="login-email">Authorized Email / ID</label>
+          <input type="email" id="login-email" value="coordinator@crisisconnect.local" required placeholder="e.g. responder@agency.gov">
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Security Passcode</label>
+          <input type="password" id="login-password" value="demo1234" required placeholder="Enter password">
+        </div>
+
+        <div class="form-group">
+          <label for="login-role">Operational Role</label>
+          <select id="login-role" required>
+            <option value="Admin">Admin (Full Command Authority)</option>
+            <option value="Field Responder" selected>Field Responder (Ground Operations)</option>
+            <option value="Medical Team">Medical Team (Triage & Facilities)</option>
+            <option value="Volunteer Coordinator">Volunteer Coordinator (Supplies & Shelter)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          <span>Sign In to Dashboard</span>
+          <span class="btn-arrow">➔</span>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p>Demonstration system for flood emergency scenario. No live 911 or real emergency services connected.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       DASHBOARD MAIN CONTAINER (Hidden until logged in)
+       ========================================================================= -->
+  <div id="dashboard-container" class="dashboard-wrapper hidden">
+
+    <!-- 2. DASHBOARD HEADER / NAV -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-logo">
+          <span class="logo-symbol">⚡</span>
+          <div class="logo-titles">
+            <span class="app-name">CrisisConnect AI</span>
+            <span class="app-tagline">Disaster Coordination System</span>
+          </div>
+        </div>
+        <div class="status-pill active-emergency">
+          <span class="pulsing-dot"></span>
+          <span>Emergency Mode Active</span>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="scenario-badge">
+          <span class="scenario-icon">🌊</span>
+          <span>Incident: Riverdale Metro Flash Flood</span>
+        </div>
+        <div class="header-clock">
+          <span class="clock-icon">🕒</span>
+          <span id="live-clock">Loading live time...</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="user-profile">
+          <span class="user-avatar" id="header-avatar">FR</span>
+          <div class="user-meta">
+            <span class="user-email" id="header-user-email">coordinator@crisisconnect.local</span>
+            <span class="user-role-badge" id="header-user-role">Field Responder</span>
+          </div>
+        </div>
+        <button id="btn-logout" class="btn btn-outline-danger btn-sm" onclick="handleLogout()" title="Log out from dashboard">
+          <span>Sign Out</span> ⎋
+        </button>
+      </div>
+    </header>
+
+    <!-- Sub-Navbar Action Bar -->
+    <div class="action-bar">
+      <div class="action-bar-left">
+        <span class="data-indicator">🟢 Tactical Feed: Live In-Memory Simulation</span>
+      </div>
+      <div class="action-bar-right">
+        <a href="hub.html" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" title="Open Emergency Web Launchpad in a new tab">
+          <span>🌐 Web Launchpad (New Tab)</span> ↗
+        </a>
+        <button class="btn btn-danger btn-sm" onclick="openModal('alert-modal')">
+          <span>🚨 Send Emergency Alert</span>
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('resource-modal')">
+          <span>📦 Allocate Resource</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="openModal('shelter-modal')">
+          <span>🏠 Register Shelter</span>
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="resetToDemoData()" title="Reset all data back to clean demonstration defaults">
+          <span>🔄 Reset Demo Data</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="dashboard-main">
+
+      <!-- 3. OVERVIEW CARDS (KPIs) -->
+      <section class="section-container" aria-label="Key Performance Indicators">
+        <div class="section-title-wrap">
+          <h2 class="section-title"><span>📊</span> Incident Operations Overview</h2>
+          <span class="section-subtitle">Real-time aggregated emergency telemetry</span>
+        </div>
+
+        <div class="kpi-grid">
+          <!-- Active Incidents -->
+          <div class="kpi-card kpi-danger">
+            <div class="kpi-icon-wrap">🚨</div>
+            <div class="kpi-content">
+              <span class="kpi-label">Active Incidents</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpi-incidents">18</span>
+                <span class="kpi-badge badge-danger">3 Critical</span>
+              </div>
+              <span class="kpi-trend">↑ 4 reported in past 30 mins</span>
+            </div>
+          </div>
+
+          <!-- People Affected -->
+          <div class="kpi-card kpi-warning">
+            <div class="kpi-icon-wrap">👥</div>
+            <div class="kpi-content">
+              <span class="kpi-label">People Displaced / Impacted</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpi-people">4,250</span>
+                <span class="kpi-badge badge-warning">High Impact</span>
+              </div>
+              <span class="kpi-trend">Evacuation orders active in 2 sectors</span>
+            </div>
+          </div>
+
+          <!-- Responders Deployed -->
+          <div class="kpi-card kpi-primary">
+            <div class="kpi-icon-wrap">🛡️</div>
+            <div class="kpi-content">
+              <span class="kpi-label">Responders Deployed</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpi-responders">142</span>
+                <span class="kpi-badge badge-primary">38 Standby</span>
+              </div>
+              <span class="kpi-trend">National Guard, EMT, Fire & Rescue</span>
+            </div>
+          </div>
+
+          <!-- Available Shelters -->
+          <div class="kpi-card kpi-success">
+            <div class="kpi-icon-wrap">🏠</div>
+            <div class="kpi-content">
+              <span class="kpi-label">Shelter Capacity</span>
+              <div class="kpi-value-row">
+                <span class="kpi-number" id="kpi-shelters">820 Beds</span>
+                <span class="kpi-badge badge-success">4 Open Facilities</span>
+              </div>
+              <span class="kpi-trend" id="kpi-shelter-occupancy">1,030 of 1,850 occupied (56%)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TWO COLUMN LAYOUT: AI Analysis & CSS Map -->
+      <div class="grid-2col">
+
+        <!-- 4. AI SITUATION ANALYSIS -->
+        <section class="section-container" aria-label="AI Situation Analysis">
+          <div class="card card-elevated h-100 ai-analysis-card">
+            <div class="card-header ai-header">
+              <div class="ai-header-title">
+                <span class="ai-spark-icon">✨</span>
+                <div>
+                  <h3 class="card-title">AI Situation Analysis</h3>
+                  <span class="card-subtitle">Automated Multi-source Intelligence Summary (Simulated)</span>
+                </div>
+              </div>
+              <button class="btn btn-outline btn-sm" id="btn-refresh-ai" onclick="refreshAiAnalysis()">
+                <span class="refresh-icon">🔄</span>
+                <span>Refresh AI Analysis</span>
+              </button>
+            </div>
+
+            <div class="card-body">
+              <div class="ai-status-row">
+                <div class="ai-meta-item">
+                  <span class="meta-label">Overall Severity</span>
+                  <span class="meta-badge badge-critical" id="ai-severity">CRITICAL - LEVEL 4</span>
+                </div>
+                <div class="ai-meta-item">
+                  <span class="meta-label">River Inundation Velocity</span>
+                  <span class="meta-val" id="ai-river-speed">+4.2 in/hr (Cresting)</span>
+                </div>
+                <div class="ai-meta-item">
+                  <span class="meta-label">Last AI Assessment</span>
+                  <span class="meta-val time-highlight" id="ai-updated-time">Just now</span>
+                </div>
+              </div>
+
+              <div class="ai-summary-box">
+                <h4 class="summary-heading">Executive Summary</h4>
+                <p id="ai-summary-text" class="summary-text">
+                  Heavy cloudburst runoff has overwhelmed the Mill Creek drainage basin. Water levels are rising rapidly along the Riverside District. 3 main arterial bridges are impassable. Secondary earthen levees in Sector 2 show seepage. Priority focus is civilian water rescues and hospital emergency power preservation.
+                </p>
+              </div>
+
+              <div class="ai-columns">
+                <div class="ai-column">
+                  <h4 class="ai-subheading urgent">
+                    <span>🚨</span> Most Urgent Operational Needs
+                  </h4>
+                  <ul class="ai-list" id="ai-urgent-needs">
+                    <li>High-capacity dewatering trash pumps for Central Hospital generator vault</li>
+                    <li>Shallow-draft inflatable evacuation boats in Riverside District (Zone A)</li>
+                    <li>Clean bottled drinking water and infant formula at North High Shelter</li>
+                  </ul>
+                </div>
+
+                <div class="ai-column">
+                  <h4 class="ai-subheading highrisk">
+                    <span>⚠️</span> High-Risk Identified Locations
+                  </h4>
+                  <ul class="ai-list" id="ai-high-risk-locations">
+                    <li><strong>Riverside District:</strong> 4ft standing water, low-lying homes cut off</li>
+                    <li><strong>Central Hospital:</strong> Basement utility rooms threatened by sewer backflow</li>
+                    <li><strong>Highway 8 Underpass:</strong> Stranded transit bus, blocked heavy logistics corridor</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer ai-footer">
+              <span class="ai-model-tag">🤖 CrisisConnect Neural Core v2.4 (Simulated Engine)</span>
+              <span class="ai-confidence">Confidence Score: <strong>94.8%</strong></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 10. EMERGENCY MAP PLACEHOLDER (CSS-Only) -->
+        <section class="section-container" aria-label="Tactical Vector Map">
+          <div class="card card-elevated h-100 map-card">
+            <div class="card-header">
+              <div class="map-header-title">
+                <span class="map-icon">🗺️</span>
+                <div>
+                  <h3 class="card-title">Tactical Emergency Map</h3>
+                  <span class="card-subtitle">Sector Overview & Geographic Marker Telemetry (CSS Vector View)</span>
+                </div>
+              </div>
+              <div class="map-controls">
+                <span class="badge badge-info">Grid Sector: Alpha-4</span>
+              </div>
+            </div>
+
+            <div class="card-body map-body-container">
+              <!-- Visual CSS Map Canvas -->
+              <div class="css-map" id="emergency-map">
+                <!-- Grid Lines and Topography -->
+                <div class="map-grid-overlay"></div>
+                <div class="map-topography-lines"></div>
+
+                <!-- Stylized River -->
+                <div class="map-river">
+                  <span class="river-label">Mill Creek Flood Surge 〰〰</span>
+                </div>
+
+                <!-- Stylized Highways -->
+                <div class="map-highway map-highway-h"></div>
+                <div class="map-highway map-highway-v"></div>
+
+                <!-- Interactive Location Markers -->
+                <!-- Marker 1: Riverside (Critical) -->
+                <div class="map-marker marker-critical" style="top: 28%; left: 24%;" tabindex="0" onclick="showMarkerInfo('Riverside', 'Critical Flooding', 'Rapid water rise. Boat evacuations underway. 40 stranded civilians.', 'Red')">
+                  <div class="marker-pulse"></div>
+                  <div class="marker-pin">📍</div>
+                  <div class="marker-tag">Riverside: Critical</div>
+                </div>
+
+                <!-- Marker 2: Central Hospital (Medical Support) -->
+                <div class="map-marker marker-medical" style="top: 60%; left: 38%;" tabindex="0" onclick="showMarkerInfo('Central Hospital', 'Medical Support Needed', 'Emergency generator room threatened. Dewatering pumps dispatched.', 'Blue')">
+                  <div class="marker-pulse medical"></div>
+                  <div class="marker-pin">🏥</div>
+                  <div class="marker-tag">Central Hospital: Medical Support</div>
+                </div>
+
+                <!-- Marker 3: North School (Shelter) -->
+                <div class="map-marker marker-shelter" style="top: 18%; left: 74%;" tabindex="0" onclick="showMarkerInfo('North High School', 'Active Shelter Hub', 'Operating at 84% capacity. Accepting evacuees. Medical triage active.', 'Green')">
+                  <div class="marker-pin">🏠</div>
+                  <div class="marker-tag">North School: Shelter</div>
+                </div>
+
+                <!-- Marker 4: Highway 8 (Road Blocked) -->
+                <div class="map-marker marker-warning" style="top: 72%; left: 70%;" tabindex="0" onclick="showMarkerInfo('Highway 8 Underpass', 'Road Inundated / Blocked', 'High water and disabled vehicles. Detour via Ridge Road active.', 'Orange')">
+                  <div class="marker-pin">⛔</div>
+                  <div class="marker-tag">Highway 8: Road Blocked</div>
+                </div>
+
+                <!-- Marker 5: East Levee (Supply Point) -->
+                <div class="map-marker marker-supply" style="top: 42%; left: 82%;" tabindex="0" onclick="showMarkerInfo('East Levee Sector', 'Sandbag Operations', '5,000 sandbags deployed by National Guard teams.', 'Blue')">
+                  <div class="marker-pin">📦</div>
+                  <div class="marker-tag">East Levee: Sandbag Point</div>
+                </div>
+
+                <!-- Map Info Modal / Popover Display -->
+                <div class="map-inspector" id="map-inspector">
+                  <div class="inspector-header">
+                    <strong id="inspector-title">Select a map marker</strong>
+                    <button class="btn-close-sm" onclick="closeMapInspector()">×</button>
+                  </div>
+                  <p id="inspector-desc" class="inspector-body">Click on any colored tactical pin to review area reconnaissance data.</p>
+                </div>
+              </div>
+
+              <!-- Map Legend -->
+              <div class="map-legend">
+                <div class="legend-item"><span class="legend-dot dot-critical"></span> Critical / Hazard Zone</div>
+                <div class="legend-item"><span class="legend-dot dot-warning"></span> Blocked / High Caution</div>
+                <div class="legend-item"><span class="legend-dot dot-medical"></span> Medical Facility</div>
+                <div class="legend-item"><span class="legend-dot dot-shelter"></span> Public Shelter</div>
+                <div class="legend-item"><span class="legend-dot dot-supply"></span> Resource Staging</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- 5. INCIDENT REPORTS (With Filters) -->
+      <section class="section-container" aria-label="Incident Reports Feed">
+        <div class="card card-elevated">
+          <div class="card-header incident-filter-header">
+            <div>
+              <h3 class="card-title"><span>📢</span> Multi-Source Incident Reports</h3>
+              <span class="card-subtitle">Real-time alerts gathered from weather sensors, responders, citizens, and hospitals</span>
+            </div>
+
+            <div class="filter-controls">
+              <!-- Severity Filter -->
+              <div class="filter-group">
+                <label for="filter-severity">Severity:</label>
+                <select id="filter-severity" onchange="renderIncidents()">
+                  <option value="All">All Severities</option>
+                  <option value="Critical">Critical</option>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+
+              <!-- Source Filter -->
+              <div class="filter-group">
+                <label for="filter-source">Source:</label>
+                <select id="filter-source" onchange="renderIncidents()">
+                  <option value="All">All Sources</option>
+                  <option value="Weather Alert">Weather Alerts</option>
+                  <option value="Field Responder">Field Responders</option>
+                  <option value="Citizen">Citizens</option>
+                  <option value="Hospital">Hospitals</option>
+                  <option value="Government">Government Agencies</option>
+                </select>
+              </div>
+
+              <button class="btn btn-outline btn-sm" onclick="resetIncidentFilters()">Reset Filters</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div id="incidents-container" class="incidents-list">
+              <!-- Dynamically populated via JS -->
+            </div>
+            <div id="incidents-empty" class="empty-state hidden">
+              <span>🔍 No incident reports match the selected filters.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. PRIORITY AREAS TABLE -->
+      <section class="section-container" aria-label="Priority Areas">
+        <div class="card card-elevated">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title"><span>🎯</span> Priority Impact Areas & Response Teams</h3>
+              <span class="card-subtitle">Tactical allocation zones categorized by vulnerability and requirement</span>
+            </div>
+            <span class="badge badge-primary" id="priority-area-count">5 Monitored Sectors</span>
+          </div>
+
+          <div class="card-body table-responsive">
+            <table class="data-table" id="priority-areas-table">
+              <thead>
+                <tr>
+                  <th>Area / Zone Name</th>
+                  <th>Risk Level</th>
+                  <th>Estimated Impact</th>
+                  <th>Main Requirement</th>
+                  <th>Assigned Response Unit</th>
+                  <th>Operational Status</th>
+                </tr>
+              </thead>
+              <tbody id="priority-areas-body">
+                <!-- Populated via script.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. RESOURCE COORDINATION -->
+      <section class="section-container" aria-label="Resource Coordination">
+        <div class="section-title-wrap between">
+          <div>
+            <h2 class="section-title"><span>📦</span> Resource Coordination & Deployment</h2>
+            <span class="section-subtitle">Track, allocate, and distribute critical emergency assets</span>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('resource-modal')">
+            <span>➕ Allocate Resource</span>
+          </button>
+        </div>
+
+        <div class="resource-grid" id="resource-cards-container">
+          <!-- 5 Resource Cards dynamically populated via JS -->
+        </div>
+      </section>
+
+      <!-- 8. SHELTER MANAGEMENT -->
+      <section class="section-container" aria-label="Shelter Management">
+        <div class="section-title-wrap between">
+          <div>
+            <h2 class="section-title"><span>🏠</span> Emergency Shelter Network</h2>
+            <span class="section-subtitle">Live occupancy monitoring and capacity coordination</span>
+          </div>
+          <button class="btn btn-secondary" onclick="openModal('shelter-modal')">
+            <span>➕ Register New Shelter</span>
+          </button>
+        </div>
+
+        <div class="shelter-grid" id="shelters-container">
+          <!-- Shelter cards dynamically populated via JS -->
+        </div>
+      </section>
+
+      <!-- 9. RESPONSE ACTIVITY BOARD (Kanban Board) -->
+      <section class="section-container" aria-label="Response Activity Board">
+        <div class="section-title-wrap">
+          <h2 class="section-title"><span>📋</span> Response Activity Task Board</h2>
+          <span class="section-subtitle">Coordinate ground action items through life-cycle stages</span>
+        </div>
+
+        <div class="kanban-board">
+          <!-- Column 1: Pending -->
+          <div class="kanban-column" id="col-pending">
+            <div class="kanban-column-header col-header-pending">
+              <span class="col-title">Pending Action</span>
+              <span class="kanban-counter" id="count-pending">0</span>
+            </div>
+            <div class="kanban-tasks" id="tasks-pending">
+              <!-- Tasks rendered here -->
+            </div>
+          </div>
+
+          <!-- Column 2: In Progress -->
+          <div class="kanban-column" id="col-in-progress">
+            <div class="kanban-column-header col-header-progress">
+              <span class="col-title">In Progress</span>
+              <span class="kanban-counter" id="count-in-progress">0</span>
+            </div>
+            <div class="kanban-tasks" id="tasks-in-progress">
+              <!-- Tasks rendered here -->
+            </div>
+          </div>
+
+          <!-- Column 3: Completed -->
+          <div class="kanban-column" id="col-completed">
+            <div class="kanban-column-header col-header-completed">
+              <span class="col-title">Completed Tasks</span>
+              <span class="kanban-counter" id="count-completed">0</span>
+            </div>
+            <div class="kanban-tasks" id="tasks-completed">
+              <!-- Tasks rendered here -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11. ALERTS & ACTIVITY LOG -->
+      <section class="section-container" aria-label="Emergency Alerts and Operations Log">
+        <div class="grid-2col">
+          <!-- Emergency Alerts Feed -->
+          <div class="card card-elevated">
+            <div class="card-header between">
+              <div>
+                <h3 class="card-title"><span>🚨</span> Active Emergency Broadcast Alerts</h3>
+                <span class="card-subtitle">High-priority alerts dispatched across responder networks</span>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="openModal('alert-modal')">
+                <span>➕ Send Alert</span>
+              </button>
+            </div>
+            <div class="card-body">
+              <div id="alerts-list" class="alerts-feed">
+                <!-- Alerts populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Operational Activity Log -->
+          <div class="card card-elevated">
+            <div class="card-header between">
+              <div>
+                <h3 class="card-title"><span>📜</span> Operations Activity Log</h3>
+                <span class="card-subtitle">Audit trail of allocations, shelter changes, and task updates</span>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="clearActivityLog()">Clear Log</button>
+            </div>
+            <div class="card-body">
+              <div id="activity-log" class="activity-feed">
+                <!-- Log entries populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 12. FOOTER -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="footer-logo">⚡ CrisisConnect AI</span>
+          <span class="footer-tag">Disaster Response Coordination Prototype</span>
+        </div>
+        <div class="footer-disclaimer">
+          <p>⚠️ <strong>Demonstration Notice:</strong> All data, locations, scenarios, and AI evaluations on this website are simulated demonstration data designed for flood response workflow demonstration. Not connected to active 911 dispatch or live weather feeds.</p>
+        </div>
+        <div class="footer-copyright">
+          <span>Clean Vanilla HTML5 / CSS3 / ES6 Implementation • LocalStorage Enabled</span>
+        </div>
+      </div>
+    </footer>
+
+  </div> <!-- End dashboard-container -->
+
+
+  <!-- =========================================================================
+       MODALS
+       ========================================================================= -->
+
+  <!-- Modal 1: Allocate Resource -->
+  <div id="resource-modal" class="modal-backdrop hidden" onclick="handleBackdropClick(event, 'resource-modal')">
+    <div class="modal-box" role="dialog" aria-labelledby="modal-res-title" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modal-res-title"><span>📦</span> Allocate Disaster Resource</h3>
+        <button class="modal-close-btn" onclick="closeModal('resource-modal')" aria-label="Close modal">✕</button>
+      </div>
+      <form id="resource-form" onsubmit="event.preventDefault(); submitResourceAllocation();">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="res-type">Resource Category *</label>
+            <select id="res-type" required>
+              <option value="Responders">Responders (Personnel & Search Teams)</option>
+              <option value="Medical supplies">Medical Supplies (Trauma & Triage Kits)</option>
+              <option value="Food and water">Food and Water (MREs & Clean Water Packs)</option>
+              <option value="Rescue vehicles">Rescue Vehicles (Boats & High-Water Trucks)</option>
+              <option value="Temporary shelters">Temporary Shelters (Tents & Cots)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="res-quantity">Allocation Quantity *</label>
+            <input type="number" id="res-quantity" min="1" max="10000" required placeholder="e.g. 25">
+          </div>
+
+          <div class="form-group">
+            <label for="res-destination">Target Destination / Sector *</label>
+            <select id="res-destination" required>
+              <option value="Riverside District">Riverside District (Critical Zone A)</option>
+              <option value="Central Hospital ER">Central Hospital ER (Generator Vault)</option>
+              <option value="North High School Shelter">North High School Shelter</option>
+              <option value="Highway 8 Staging Area">Highway 8 Staging Area</option>
+              <option value="East Levee Sector">East Levee Sector</option>
+              <option value="Civic Community Center">Civic Community Center</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="res-team">Responsible Unit / Lead *</label>
+            <input type="text" id="res-team" required placeholder="e.g. Search & Rescue Team Delta, Red Cross Unit 3">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('resource-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Allocation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Add Shelter -->
+  <div id="shelter-modal" class="modal-backdrop hidden" onclick="handleBackdropClick(event, 'shelter-modal')">
+    <div class="modal-box" role="dialog" aria-labelledby="modal-she-title" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modal-she-title"><span>🏠</span> Register Emergency Shelter</h3>
+        <button class="modal-close-btn" onclick="closeModal('shelter-modal')" aria-label="Close modal">✕</button>
+      </div>
+      <form id="shelter-form" onsubmit="event.preventDefault(); submitNewShelter();">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="she-name">Shelter Facility Name *</label>
+            <input type="text" id="she-name" required placeholder="e.g. South Community College Gym">
+          </div>
+
+          <div class="form-group">
+            <label for="she-location">Facility Address / Sector *</label>
+            <input type="text" id="she-location" required placeholder="e.g. 450 Highland Blvd, South Sector">
+          </div>
+
+          <div class="grid-2col-inputs">
+            <div class="form-group">
+              <label for="she-capacity">Maximum Capacity (Beds) *</label>
+              <input type="number" id="she-capacity" min="10" max="5000" required placeholder="e.g. 400">
+            </div>
+            <div class="form-group">
+              <label for="she-occupancy">Initial Occupancy *</label>
+              <input type="number" id="she-occupancy" min="0" max="5000" value="0" required placeholder="e.g. 50">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="she-contact">Emergency Coordinator Contact *</label>
+            <input type="text" id="she-contact" required placeholder="e.g. (555) 392-1088 / Dispatch Channel 4">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('shelter-modal')">Cancel</button>
+          <button type="submit" class="btn btn-secondary">Register Facility</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Send Alert -->
+  <div id="alert-modal" class="modal-backdrop hidden" onclick="handleBackdropClick(event, 'alert-modal')">
+    <div class="modal-box" role="dialog" aria-labelledby="modal-alt-title" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modal-alt-title"><span>🚨</span> Broadcast Emergency Alert</h3>
+        <button class="modal-close-btn" onclick="closeModal('alert-modal')" aria-label="Close modal">✕</button>
+      </div>
+      <form id="alert-form" onsubmit="event.preventDefault(); submitEmergencyAlert();">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="alt-severity">Alert Severity *</label>
+            <select id="alt-severity" required>
+              <option value="Critical">🔴 Critical (Immediate Threat to Life)</option>
+              <option value="High">🟠 High Priority (Urgent Operational Action)</option>
+              <option value="Medium">🟡 Medium (Precautionary / Advisory)</option>
+              <option value="Low">🔵 Low (General Notice)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="alt-area">Target Geographic Area *</label>
+            <input type="text" id="alt-area" required placeholder="e.g. Riverside District / Sector 4 Lowlands">
+          </div>
+
+          <div class="form-group">
+            <label for="alt-message">Alert Directive Message *</label>
+            <textarea id="alt-message" rows="3" required placeholder="e.g. Immediate mandatory evacuation order for low-lying blocks along Mill Creek. Move to North High School."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('alert-modal')">Cancel</button>
+          <button type="submit" class="btn btn-danger">Broadcast Alert</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

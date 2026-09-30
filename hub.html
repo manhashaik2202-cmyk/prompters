@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CrisisConnect Hub - Emergency Web Launchpad</title>
+  <style>
+    :root {
+      --color-brand-dark: #0f1f38;
+      --color-brand-blue: #1d4ed8;
+      --color-brand-accent: #3b82f6;
+      --bg-app: #f1f5f9;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: #cbd5e1;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    header {
+      background-color: var(--color-brand-dark);
+      color: #ffffff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 2px solid #1e3a5f;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .header-logo span.icon {
+      font-size: 1.5rem;
+      background: #2563eb;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+    }
+
+    .header-title h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .header-title p {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background-color: var(--color-brand-blue);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background-color: #1e40af;
+    }
+
+    .btn-success {
+      background-color: #16a34a;
+      color: #ffffff;
+    }
+    .btn-success:hover {
+      background-color: #15803d;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border-color: #475569;
+      color: #ffffff;
+    }
+    .btn-outline:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.78rem;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Controls Bar */
+    .controls-panel {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.75rem;
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      font-size: 0.9rem;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .filter-tabs {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+      background-color: #ffffff;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+      background-color: var(--color-brand-blue);
+      color: #ffffff;
+      border-color: var(--color-brand-blue);
+    }
+
+    /* Notice Banner */
+    .info-banner {
+      background-color: #eff6ff;
+      border-left: 4px solid var(--color-brand-blue);
+      padding: 0.75rem 1rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* Grid of Website Cards */
+    .sites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .site-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .site-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: #93c5fd;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .site-icon {
+      font-size: 1.75rem;
+      background-color: #f1f5f9;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+
+    .site-info {
+      flex: 1;
+    }
+
+    .site-category {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #2563eb;
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+
+    .site-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.25;
+    }
+
+    .site-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 1rem;
+    }
+
+    .site-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.75rem;
+      border-top: 1px solid #f1f5f9;
+      margin-top: auto;
+    }
+
+    .site-url {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      font-family: monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 130px;
+    }
+
+    .open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.85rem;
+      background-color: #2563eb;
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+    }
+
+    .open-btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .modal-backdrop.hidden {
+      display: none;
+    }
+
+    .modal-box {
+      background-color: #ffffff;
+      border-radius: var(--radius-md);
+      width: 100%;
+      max-width: 480px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-box h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 0.35rem;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-family: inherit;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+
+    footer {
+      background-color: var(--color-brand-dark);
+      color: #94a3b8;
+      text-align: center;
+      padding: 1.25rem;
+      font-size: 0.78rem;
+      border-top: 1px solid #1e3a5f;
+      margin-top: auto;
+    }
+
+    footer a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-logo">
+      <span class="icon">🌐</span>
+      <div class="header-title">
+        <h1>Emergency Web Launchpad</h1>
+        <p>Direct Portal Hub • Opens Live Sites in New Tabs</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <a href="index.html" class="btn btn-outline btn-sm">
+        <span>⚡ Open CrisisConnect Dashboard</span> ↗
+      </a>
+      <button class="btn btn-success btn-sm" onclick="openAllInTabs()">
+        <span>🚀 Open Selected in New Tabs</span>
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+        <span>➕ Add Custom Website</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Informational Banner -->
+    <div class="info-banner">
+      <span>💡 <strong>Quick Tab Launcher:</strong> Clicking <strong>"Open in New Tab ↗"</strong> opens that website in a separate browser tab while keeping this coordination console open.</span>
+      <span style="font-size: 0.75rem; color: #475569;">Target: <code>_blank</code> (Secure <code>rel="noopener"</code>)</span>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+      <!-- Search Input -->
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="search-input" placeholder="Search websites, emergency services, radars..." oninput="renderSites()">
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="filter-tabs" id="category-tabs">
+        <button class="tab-btn active" onclick="setCategory('All')">All Websites</button>
+        <button class="tab-btn" onclick="setCategory('Weather')">Weather & Radars</button>
+        <button class="tab-btn" onclick="setCategory('Emergency')">Emergency Relief</button>
+        <button class="tab-btn" onclick="setCategory('Maps')">Live Maps & GIS</button>
+        <button class="tab-btn" onclick="setCategory('Medical')">Medical & Health</button>
+        <button class="tab-btn" onclick="setCategory('Custom')">Custom Added</button>
+      </div>
+    </div>
+
+    <!-- Sites Grid -->
+    <div class="sites-grid" id="sites-grid">
+      <!-- Injected via JavaScript -->
+    </div>
+  </main>
+
+  <!-- Add Website Modal -->
+  <div id="add-modal" class="modal-backdrop hidden" onclick="handleBackdropClick(event)">
+    <div class="modal-box">
+      <h3>➕ Add Website to Launchpad</h3>
+      <form id="add-form" onsubmit="event.preventDefault(); submitCustomWebsite();">
+        <div class="form-group">
+          <label for="web-name">Website / Service Name *</label>
+          <input type="text" id="web-name" required placeholder="e.g. Local Hospital Triage Portal">
+        </div>
+
+        <div class="form-group">
+          <label for="web-url">Website URL (Include https://) *</label>
+          <input type="url" id="web-url" required placeholder="https://example.org">
+        </div>
+
+        <div class="form-group">
+          <label for="web-category">Category *</label>
+          <select id="web-category" required>
+            <option value="Emergency">Emergency Relief</option>
+            <option value="Weather">Weather & Radars</option>
+            <option value="Maps">Live Maps & GIS</option>
+            <option value="Medical">Medical & Health</option>
+            <option value="Custom" selected>Custom</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="web-icon">Icon Emoji</label>
+          <input type="text" id="web-icon" value="🔗" maxlength="4">
+        </div>
+
+        <div class="form-group">
+          <label for="web-desc">Short Description</label>
+          <input type="text" id="web-desc" placeholder="Brief note about this site">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn" style="background:#e2e8f0; color:#334155;" onclick="closeAddModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save to Launchpad</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>CrisisConnect AI — Emergency Web Launchpad • Designed to open live disaster response resources in separate browser tabs.</p>
+  </footer>
+
+  <script>
+    const DEFAULT_SITES = [
+      {
+        id: 'site-1',
+        name: 'National Weather Service',
+        category: 'Weather',
+        icon: '⛈️',
+        desc: 'Official real-time precipitation radar, severe storm warnings, and flash flood alerts.',
+        url: 'https://www.weather.gov'
+      },
+      {
+        id: 'site-2',
+        name: 'USGS National Water Dashboard',
+        category: 'Weather',
+        icon: '🌊',
+        desc: 'Interactive streamflow, river water levels, flood crest stages, and rain gauge telemetry.',
+        url: 'https://dashboard.waterdata.usgs.gov'
+      },
+      {
+        id: 'site-3',
+        name: 'FEMA Disaster Assistance',
+        category: 'Emergency',
+        icon: '🏛️',
+        desc: 'Federal emergency coordination, national situation reports, and community recovery aid.',
+        url: 'https://www.fema.gov'
+      },
+      {
+        id: 'site-4',
+        name: 'American Red Cross Shelters',
+        category: 'Emergency',
+        icon: '🏠',
+        desc: 'Open shelter directory, mass care feeding locations, and reunification services.',
+        url: 'https://www.redcross.org'
+      },
+      {
+        id: 'site-5',
+        name: 'OpenStreetMap Humanitarian GIS',
+        category: 'Maps',
+        icon: '🗺️',
+        desc: 'Collaborative disaster mapping, road closures, impassable bridges, and satellite overlays.',
+        url: 'https://www.openstreetmap.org'
+      },
+      {
+        id: 'site-6',
+        name: 'CDC Emergency Preparedness',
+        category: 'Medical',
+        icon: '🏥',
+        desc: 'Public health crisis guidelines, contaminated water management, and triage manuals.',
+        url: 'https://www.cdc.gov'
+      },
+      {
+        id: 'site-7',
+        name: 'CrisisConnect AI Dashboard',
+        category: 'Emergency',
+        icon: '⚡',
+        desc: 'Tactical local coordination dashboard with incident logs, shelter capacity, and task Kanban.',
+        url: 'index.html'
+      },
+      {
+        id: 'site-8',
+        name: 'FlightAware Rescue Flight Radar',
+        category: 'Maps',
+        icon: '🚁',
+        desc: 'Live airborne emergency helicopter tracking, search and rescue flight coordinates.',
+        url: 'https://flightaware.com'
+      }
+    ];
+
+    let currentCategory = 'All';
+    let sitesData = [];
+
+    // Load from localStorage or defaults
+    function init() {
+      const saved = localStorage.getItem('crisis_hub_sites');
+      if (saved) {
+        try {
+          sitesData = JSON.parse(saved);
+        } catch (e) {
+          sitesData = [...DEFAULT_SITES];
+        }
+      } else {
+        sitesData = [...DEFAULT_SITES];
+      }
+      renderSites();
+    }
+
+    function setCategory(cat) {
+      currentCategory = cat;
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => {
+        if (btn.textContent.includes(cat) || (cat === 'All' && btn.textContent.includes('All'))) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      renderSites();
+    }
+
+    function renderSites() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      const grid = document.getElementById('sites-grid');
+
+      const filtered = sitesData.filter(site => {
+        const matchesCategory = (currentCategory === 'All' || site.category === currentCategory);
+        const matchesQuery = !query || 
+          site.name.toLowerCase().includes(query) || 
+          site.desc.toLowerCase().includes(query) || 
+          site.category.toLowerCase().includes(query) ||
+          site.url.toLowerCase().includes(query);
+        return matchesCategory && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #64748b; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
+          <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">🔍 No websites found matching your search</p>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">Add this website now</button>
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(site => `
+        <article class="site-card">
+          <div>
+            <div class="site-header">
+              <div class="site-icon">${site.icon || '🌐'}</div>
+              <div class="site-info">
+                <span class="site-category">${escapeHtml(site.category)}</span>
+                <h3 class="site-name">${escapeHtml(site.name)}</h3>
+              </div>
+            </div>
+            <p class="site-desc">${escapeHtml(site.desc)}</p>
+          </div>
+
+          <div class="site-footer">
+            <span class="site-url" title="${escapeHtml(site.url)}">${escapeHtml(site.url)}</span>
+            <!-- target="_blank" opens in a new tab -->
+            <a href="${escapeHtml(site.url)}" target="_blank" rel="noopener noreferrer" class="open-btn">
+              <span>Open in New Tab</span> ↗
+            </a>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function openAllInTabs() {
+      // Pick first 3-4 visible sites to open in tabs to avoid popup blocker tripping
+      const grid = document.getElementById('sites-grid');
+      const links = grid.querySelectorAll('a.open-btn');
+      if (links.length === 0) return;
+
+      const toOpen = Math.min(3, links.length);
+      for (let i = 0; i < toOpen; i++) {
+        window.open(links[i].href, '_blank', 'noopener,noreferrer');
+      }
+    }
+
+    function openAddModal() {
+      document.getElementById('add-modal').classList.remove('hidden');
+    }
+
+    function closeAddModal() {
+      document.getElementById('add-modal').classList.add('hidden');
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target.id === 'add-modal') {
+        closeAddModal();
+      }
+    }
+
+    function submitCustomWebsite() {
+      const name = document.getElementById('web-name').value.trim();
+      let url = document.getElementById('web-url').value.trim();
+      const category = document.getElementById('web-category').value;
+      const icon = document.getElementById('web-icon').value.trim() || '🌐';
+      const desc = document.getElementById('web-desc').value.trim() || 'Custom added responder resource.';
+
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+
+      const newSite = {
+        id: 'site-' + Date.now(),
+        name,
+        category,
+        icon,
+        desc,
+        url
+      };
+
+      sitesData.unshift(newSite);
+      localStorage.setItem('crisis_hub_sites', JSON.stringify(sitesData));
+
+      closeAddModal();
+      document.getElementById('add-form').reset();
+      renderSites();
+
+      // Immediately offer to open it in a new tab
+      if (confirm(`Website "${name}" saved! Do you want to open it in a new tab right now?`)) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    }
+
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return str;
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
